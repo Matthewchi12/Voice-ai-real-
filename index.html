@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>VoiceClone AI</title>
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+</head>
+
+<body>
+
+  <div class="app">
+
+    <header class="topbar">
+
+      <div class="brand">
+        <div class="brand-icon">V</div>
+
+        <div>
+          <h1>VoiceClone</h1>
+          <span>AI Voice Studio</span>
+        </div>
+      </div>
+
+      <div class="status">
+        <span class="status-dot"></span>
+        Fish Audio
+      </div>
+
+    </header>
+
+
+    <main>
+
+      <section class="hero">
+
+        <div class="badge">
+          AI VOICE STUDIO
+        </div>
+
+        <h2>
+          Turn your voice into
+          <span>AI speech.</span>
+        </h2>
+
+        <p>
+          Upload or record a short voice sample,
+          create your voice model, then type anything
+          and generate natural speech.
+        </p>
+
+      </section>
+
+
+      <!-- STEP 1 -->
+
+      <section class="card">
+
+        <div class="step">
+
+          <div class="step-number">
+            01
+          </div>
+
+          <div>
+            <h3>Voice Sample</h3>
+            <p>
+              Upload a clean recording of the voice.
+            </p>
+          </div>
+
+        </div>
+
+
+        <div
+          class="upload-box"
+          id="uploadBox"
+        >
+
+          <div class="upload-icon">
+            🎙️
+          </div>
+
+          <h4>
+            Upload your voice
+          </h4>
+
+          <p>
+            MP3, WAV, M4A, OGG or WebM
+          </p>
+
+          <label
+            class="upload-button"
+            for="voiceFile"
+          >
+            Choose Audio
+          </label>
+
+          <input
+            type="file"
+            id="voiceFile"
+            accept="audio/*"
+            hidden
+          >
+
+          <button
+            id="recordButton"
+            class="record-button"
+            type="button"
+          >
+            ● Record Voice
+          </button>
+
+        </div>
+
+
+        <div
+          id="recordingPanel"
+          class="recording-panel hidden"
+        >
+
+          <div class="recording-indicator">
+            <span></span>
+            Recording...
+          </div>
+
+          <div
+            id="recordTimer"
+            class="timer"
+          >
+            00:00
+          </div>
+
+          <button
+            id="stopRecording"
+            class="stop-button"
+          >
+            Stop Recording
+          </button>
+
+        </div>
+
+
+        <div
+          id="audioPreview"
+          class="audio-preview hidden"
+        >
+
+          <div class="preview-title">
+            Voice sample selected
+          </div>
+
+          <audio
+            id="sampleAudio"
+            controls
+          ></audio>
+
+        </div>
+
+
+        <div class="input-group">
+
+          <label>
+            Voice Name
+          </label>
+
+          <input
+            id="voiceName"
+            type="text"
+            placeholder="e.g. My Voice"
+            maxlength="50"
+          >
+
+        </div>
+
+
+        <button
+          id="cloneButton"
+          class="primary-button"
+        >
+          Create Voice Clone
+        </button>
+
+
+        <div
+          id="cloneStatus"
+          class="status-message"
+        ></div>
+
+      </section>
+
+
+      <!-- STEP 2 -->
+
+      <section class="card">
+
+        <div class="step">
+
+          <div class="step-number">
+            02
+          </div>
+
+          <div>
+            <h3>Generate Speech</h3>
+
+            <p>
+              Enter text and generate speech
+              using your cloned voice.
+            </p>
+          </div>
+
+        </div>
+
+
+        <div class="voice-status">
+
+          <span
+            id="voiceStatusDot"
+            class="offline"
+          ></span>
+
+          <span id="voiceStatusText">
+            No voice selected
+          </span>
+
+        </div>
+
+
+        <div class="input-group">
+
+          <label>
+            Text
+          </label>
+
+          <textarea
+            id="textInput"
+            maxlength="5000"
+            placeholder="Type something you want your cloned voice to say..."
+          ></textarea>
+
+          <div class="character-count">
+
+            <span id="charCount">
+              0
+            </span>
+
+            / 5000
+
+          </div>
+
+        </div>
+
+
+        <div class="controls">
+
+          <div class="input-group">
+
+            <label>
+              Speech Speed
+            </label>
+
+            <select id="speedSelect">
+
+              <option value="0.75">
+                0.75x
+              </option>
+
+              <option value="1" selected>
+                1.0x
+              </option>
+
+              <option value="1.25">
+                1.25x
+              </option>
+
+              <option value="1.5">
+                1.5x
+              </option>
+
+              <option value="1.75">
+                1.75x
+              </option>
+
+            </select>
+
+          </div>
+
+        </div>
+
+
+        <button
+          id="generateButton"
+          class="primary-button"
+          disabled
+        >
+          Generate Voice
+        </button>
+
+
+        <div
+          id="generateStatus"
+          class="status-message"
+        ></div>
+
+
+        <div
+          id="result"
+          class="result hidden"
+        >
+
+          <div class="result-header">
+
+            <div>
+              <span class="result-label">
+                GENERATED AUDIO
+              </span>
+
+              <h3>
+                Your voice is ready
+              </h3>
+            </div>
+
+          </div>
+
+
+          <audio
+            id="resultAudio"
+            controls
+          ></audio>
+
+
+          <a
+            id="downloadButton"
+            class="download-button"
+            download="voiceclone.mp3"
+          >
+            Download MP3
+          </a>
+
+        </div>
+
+      </section>
+
+
+      <div class="notice">
+
+        <strong>⚠️ Use responsibly</strong>
+
+        <p>
+          Only clone voices that you own or have
+          permission to use. Do not use generated
+          voices for impersonation, fraud or deception.
+        </p>
+
+      </div>
+
+    </main>
+
+
+    <footer>
+
+      Powered by Fish Audio
+
+    </footer>
+
+  </div>
+
+
+  <script src="script.js"></script>
+
+</body>
+</html>
