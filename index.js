@@ -9,7 +9,7 @@
 | Example:
 |
 | const API_URL =
-|   "https://your-backend-name.onrender.com";
+|   "const API_URL = "https://ai-voice-cloned.onrender.com";
 |
 */
 
