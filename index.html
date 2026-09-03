@@ -372,7 +372,6 @@ select:focus{
   .generate{
     width:100%;
   }
-
 }
 </style>
 </head>
@@ -409,7 +408,6 @@ select:focus{
 
 </header>
 
-
 <div class="container">
 
   <div class="hero">
@@ -423,15 +421,9 @@ select:focus{
 
   </div>
 
-
-  <!-- FREE COUNTER -->
-
   <div class="counter" id="counter">
     Free generations remaining: 5
   </div>
-
-
-  <!-- VOICE CLONING -->
 
   <div class="card">
 
@@ -448,11 +440,8 @@ select:focus{
         class="primary"
         id="recordBtn"
         onclick="toggleRecording()">
-
         🎙️ Start Recording
-
       </button>
-
 
       <label class="file-label">
 
@@ -467,13 +456,11 @@ select:focus{
 
     </div>
 
-
     <audio
       id="voicePreview"
       class="audio-preview"
       controls>
     </audio>
-
 
     <input
       id="voiceName"
@@ -482,27 +469,17 @@ select:focus{
       maxlength="100"
       placeholder="Give your voice a name, e.g. My Voice">
 
-
     <button
       class="clone-btn"
       id="cloneBtn"
       onclick="createVoiceClone()"
       disabled>
-
       🧬 Create Voice Clone
-
     </button>
 
-
-    <div
-      id="cloneStatus"
-      class="clone-status">
-    </div>
+    <div id="cloneStatus" class="clone-status"></div>
 
   </div>
-
-
-  <!-- GENERATION -->
 
   <div class="card">
 
@@ -512,63 +489,42 @@ select:focus{
       Type the words you want your cloned voice to say.
     </p>
 
-
     <textarea
       id="script"
       maxlength="5000"
       placeholder="Type what you want your cloned voice to say..."></textarea>
 
-
     <div class="controls">
 
-      <label>
-        Speed:
-      </label>
+      <label>Speed:</label>
 
-      <select
-        id="speed"
-        class="speed">
+      <select id="speed" class="speed">
 
-        <option value="0.75">
-          0.75x
-        </option>
+        <option value="0.75">0.75x</option>
 
-        <option value="1" selected>
-          1x
-        </option>
+        <option value="1" selected>1x</option>
 
-        <option value="1.25">
-          1.25x
-        </option>
+        <option value="1.25">1.25x</option>
 
-        <option value="1.5">
-          1.5x
-        </option>
+        <option value="1.5">1.5x</option>
 
-        <option value="2">
-          2x
-        </option>
+        <option value="2">2x</option>
 
       </select>
-
 
       <button
         class="generate"
         id="generateBtn"
         onclick="generateSpeech()">
-
         🔊 Generate Voice
-
       </button>
 
     </div>
-
 
     <div
       id="generationStatus"
       class="status">
     </div>
-
 
     <div
       id="audioResult"
@@ -585,9 +541,7 @@ select:focus{
         id="downloadBtn"
         class="download"
         download="voice-clone.mp3">
-
         ⬇️ Download MP3
-
       </a>
 
     </div>
@@ -596,19 +550,11 @@ select:focus{
 
 </div>
 
-
-<!-- LOGIN MODAL -->
-
-<div
-  class="login-box"
-  id="loginBox">
+<div class="login-box" id="loginBox">
 
   <div class="login-card">
 
-    <h2>
-      Login / Create Account
-    </h2>
-
+    <h2>Login / Create Account</h2>
 
     <input
       type="email"
@@ -616,40 +562,29 @@ select:focus{
       autocomplete="email"
       placeholder="Email address">
 
-
     <input
       type="password"
       id="password"
       autocomplete="current-password"
       placeholder="Password">
 
-
     <button
       class="primary"
       onclick="login()">
-
       Login
-
     </button>
-
 
     <button
       class="secondary"
       onclick="signup()">
-
       Create Account
-
     </button>
-
 
     <button
       class="close-login"
       onclick="closeLogin()">
-
       Close
-
     </button>
-
 
     <div
       id="loginStatus"
@@ -660,7 +595,6 @@ select:focus{
 
 </div>
 
-
 <script>
 
 /* =====================================================
@@ -670,14 +604,11 @@ select:focus{
 const VOICE_API =
   "https://ai-voice-cloned.onrender.com";
 
-
 const SUPABASE_URL =
   "https://ihoxjwqlvuskkqrfowbr.supabase.co";
 
-
 const SUPABASE_KEY =
   "sb_publishable_TAesDbD1gUQ5p9IoYhZWJw_tBHL5g4F";
-
 
 const supabaseClient =
   window.supabase.createClient(
@@ -701,14 +632,17 @@ let recordingStream = null;
 let isRecording = false;
 
 
+/*
+ * OpenVoice voice ID.
+ * This is returned by your /api/clone endpoint.
+ */
 let voiceId =
   localStorage.getItem(
-    "fish_voice_id"
+    "openvoice_voice_id"
   ) || null;
 
 
 const FREE_GENERATIONS = 5;
-
 
 let generationsUsed =
   Number(
@@ -723,69 +657,43 @@ let generationsUsed =
 ===================================================== */
 
 const voiceFile =
-  document.getElementById(
-    "voiceFile"
-  );
+  document.getElementById("voiceFile");
 
 const voicePreview =
-  document.getElementById(
-    "voicePreview"
-  );
+  document.getElementById("voicePreview");
 
 const cloneBtn =
-  document.getElementById(
-    "cloneBtn"
-  );
+  document.getElementById("cloneBtn");
 
 const cloneStatus =
-  document.getElementById(
-    "cloneStatus"
-  );
+  document.getElementById("cloneStatus");
 
 const recordBtn =
-  document.getElementById(
-    "recordBtn"
-  );
+  document.getElementById("recordBtn");
 
 const script =
-  document.getElementById(
-    "script"
-  );
+  document.getElementById("script");
 
 const speed =
-  document.getElementById(
-    "speed"
-  );
+  document.getElementById("speed");
 
 const generateBtn =
-  document.getElementById(
-    "generateBtn"
-  );
+  document.getElementById("generateBtn");
 
 const generatedAudio =
-  document.getElementById(
-    "generatedAudio"
-  );
+  document.getElementById("generatedAudio");
 
 const audioResult =
-  document.getElementById(
-    "audioResult"
-  );
+  document.getElementById("audioResult");
 
 const downloadBtn =
-  document.getElementById(
-    "downloadBtn"
-  );
+  document.getElementById("downloadBtn");
 
 const generationStatus =
-  document.getElementById(
-    "generationStatus"
-  );
+  document.getElementById("generationStatus");
 
 const counter =
-  document.getElementById(
-    "counter"
-  );
+  document.getElementById("counter");
 
 
 /* =====================================================
@@ -801,12 +709,9 @@ function updateCounter(){
       generationsUsed
     );
 
-
   counter.textContent =
     `Free generations remaining: ${remaining}`;
-
 }
-
 
 updateCounter();
 
@@ -822,25 +727,15 @@ voiceFile.addEventListener(
     const file =
       this.files[0];
 
-
     if(!file){
 
-      selectedVoiceFile =
-        null;
-
-      cloneBtn.disabled =
-        true;
+      selectedVoiceFile = null;
+      cloneBtn.disabled = true;
 
       return;
-
     }
 
-
-    if(
-      !file.type.startsWith(
-        "audio/"
-      )
-    ){
+    if(!file.type.startsWith("audio/")){
 
       showCloneStatus(
         "error",
@@ -849,21 +744,13 @@ voiceFile.addEventListener(
 
       this.value = "";
 
-      selectedVoiceFile =
-        null;
-
-      cloneBtn.disabled =
-        true;
+      selectedVoiceFile = null;
+      cloneBtn.disabled = true;
 
       return;
-
     }
 
-
-    if(
-      file.size >
-      20 * 1024 * 1024
-    ){
+    if(file.size > 20 * 1024 * 1024){
 
       showCloneStatus(
         "error",
@@ -872,38 +759,22 @@ voiceFile.addEventListener(
 
       this.value = "";
 
-      selectedVoiceFile =
-        null;
-
-      cloneBtn.disabled =
-        true;
+      selectedVoiceFile = null;
+      cloneBtn.disabled = true;
 
       return;
-
     }
 
-
-    selectedVoiceFile =
-      file;
-
+    selectedVoiceFile = file;
 
     const url =
-      URL.createObjectURL(
-        file
-      );
+      URL.createObjectURL(file);
 
+    voicePreview.src = url;
 
-    voicePreview.src =
-      url;
+    voicePreview.style.display = "block";
 
-
-    voicePreview.style.display =
-      "block";
-
-
-    cloneBtn.disabled =
-      false;
-
+    cloneBtn.disabled = false;
 
     showCloneStatus(
       "success",
@@ -948,7 +819,6 @@ async function startRecording(){
 
     }
 
-
     recordingStream =
       await navigator
         .mediaDevices
@@ -956,52 +826,7 @@ async function startRecording(){
           audio:true
         });
 
-
     recordedChunks = [];
-
-
-    let mimeType = "";
-
-
-    if(
-      typeof MediaRecorder !==
-      "undefined"
-    ){
-
-      const types = [
-
-        "audio/mp4",
-
-        "audio/webm;codecs=opus",
-
-        "audio/webm",
-
-        "audio/ogg;codecs=opus"
-
-      ];
-
-
-      for(
-        const type of types
-      ){
-
-        if(
-          MediaRecorder.isTypeSupported(
-            type
-          )
-        ){
-
-          mimeType =
-            type;
-
-          break;
-
-        }
-
-      }
-
-    }
-
 
     if(!window.MediaRecorder){
 
@@ -1011,6 +836,29 @@ async function startRecording(){
 
     }
 
+    let mimeType = "";
+
+    const types = [
+      "audio/mp4",
+      "audio/webm;codecs=opus",
+      "audio/webm",
+      "audio/ogg;codecs=opus"
+    ];
+
+    for(
+      const type of types
+    ){
+
+      if(
+        MediaRecorder.isTypeSupported(type)
+      ){
+
+        mimeType = type;
+        break;
+
+      }
+
+    }
 
     mediaRecorder =
       mimeType
@@ -1023,7 +871,6 @@ async function startRecording(){
       : new MediaRecorder(
           recordingStream
         );
-
 
     mediaRecorder.ondataavailable =
       function(event){
@@ -1041,29 +888,15 @@ async function startRecording(){
 
       };
 
-
-    mediaRecorder.onerror =
-      function(event){
-
-        console.error(
-          "Recorder error:",
-          event
-        );
-
-      };
-
-
     mediaRecorder.onstop =
       function(){
 
         const finalType =
           mimeType ||
           (
-            recordedChunks[0]
-            ?.type ||
+            recordedChunks[0]?.type ||
             "audio/webm"
           );
-
 
         const blob =
           new Blob(
@@ -1073,31 +906,17 @@ async function startRecording(){
             }
           );
 
+        let extension = "webm";
 
-        let extension =
-          "webm";
+        if(finalType.includes("mp4")){
 
+          extension = "m4a";
 
-        if(
-          finalType.includes(
-            "mp4"
-          )
-        ){
+        }else if(finalType.includes("ogg")){
 
-          extension =
-            "m4a";
-
-        }else if(
-          finalType.includes(
-            "ogg"
-          )
-        ){
-
-          extension =
-            "ogg";
+          extension = "ogg";
 
         }
-
 
         selectedVoiceFile =
           new File(
@@ -1108,72 +927,48 @@ async function startRecording(){
             }
           );
 
-
         const url =
-          URL.createObjectURL(
-            blob
-          );
+          URL.createObjectURL(blob);
 
-
-        voicePreview.src =
-          url;
-
+        voicePreview.src = url;
 
         voicePreview.style.display =
           "block";
 
-
-        cloneBtn.disabled =
-          false;
-
+        cloneBtn.disabled = false;
 
         showCloneStatus(
           "success",
           "Recording ready. You can now create your voice clone."
         );
 
-
         if(recordingStream){
 
           recordingStream
             .getTracks()
             .forEach(
-              track =>
-                track.stop()
+              track => track.stop()
             );
 
         }
 
-
-        recordingStream =
-          null;
+        recordingStream = null;
 
       };
 
+    mediaRecorder.start(1000);
 
-    mediaRecorder.start(
-      1000
-    );
-
-
-    isRecording =
-      true;
-
+    isRecording = true;
 
     recordBtn.textContent =
       "⏹️ Stop Recording";
 
-
-    recordBtn.classList.add(
-      "danger"
-    );
-
+    recordBtn.classList.add("danger");
 
     showCloneStatus(
       "info",
       "Recording... Speak clearly. Try to record at least 10 seconds."
     );
-
 
   }catch(error){
 
@@ -1182,35 +977,24 @@ async function startRecording(){
       error
     );
 
-
     if(recordingStream){
 
       recordingStream
         .getTracks()
         .forEach(
-          track =>
-            track.stop()
+          track => track.stop()
         );
 
     }
 
+    recordingStream = null;
 
-    recordingStream =
-      null;
-
-
-    isRecording =
-      false;
-
+    isRecording = false;
 
     recordBtn.textContent =
       "🎙️ Start Recording";
 
-
-    recordBtn.classList.remove(
-      "danger"
-    );
-
+    recordBtn.classList.remove("danger");
 
     showCloneStatus(
       "error",
@@ -1227,32 +1011,25 @@ function stopRecording(){
 
   if(
     mediaRecorder &&
-    mediaRecorder.state !==
-      "inactive"
+    mediaRecorder.state !== "inactive"
   ){
 
     mediaRecorder.stop();
 
   }
 
-
-  isRecording =
-    false;
-
+  isRecording = false;
 
   recordBtn.textContent =
     "🎙️ Start Recording";
 
-
-  recordBtn.classList.remove(
-    "danger"
-  );
+  recordBtn.classList.remove("danger");
 
 }
 
 
 /* =====================================================
-   CREATE VOICE CLONE
+   OPENVOICE CLONE
 ===================================================== */
 
 async function createVoiceClone(){
@@ -1268,48 +1045,36 @@ async function createVoiceClone(){
 
   }
 
-
-  cloneBtn.disabled =
-    true;
-
+  cloneBtn.disabled = true;
 
   cloneBtn.innerHTML =
     '<span class="loading"></span> Creating Clone...';
 
-
   showCloneStatus(
     "info",
-    "Uploading your voice and creating the clone. Please wait..."
+    "Uploading your voice to the OpenVoice server..."
   );
-
 
   try{
 
     const formData =
       new FormData();
 
-
     formData.append(
       "voice",
       selectedVoiceFile
     );
 
-
     const name =
       document
-        .getElementById(
-          "voiceName"
-        )
+        .getElementById("voiceName")
         .value
         .trim();
 
-
     formData.append(
       "name",
-      name ||
-      "My Voice"
+      name || "My Voice"
     );
-
 
     const response =
       await fetch(
@@ -1320,20 +1085,15 @@ async function createVoiceClone(){
         }
       );
 
-
     const contentType =
       response.headers.get(
         "content-type"
       ) || "";
 
-
     let data;
 
-
     if(
-      contentType.includes(
-        "application/json"
-      )
+      contentType.includes("application/json")
     ){
 
       data =
@@ -1348,14 +1108,12 @@ async function createVoiceClone(){
 
     }
 
-
     if(!response.ok){
 
       console.error(
-        "CLONE SERVER ERROR:",
+        "OPENVOICE CLONE ERROR:",
         data
       );
-
 
       throw new Error(
         data.message ||
@@ -1365,6 +1123,14 @@ async function createVoiceClone(){
 
     }
 
+    /*
+     * Your backend must return:
+     *
+     * {
+     *   "success": true,
+     *   "voiceId": "some-id"
+     * }
+     */
 
     if(!data.voiceId){
 
@@ -1373,33 +1139,34 @@ async function createVoiceClone(){
         data
       );
 
-
       throw new Error(
-        "The server created a response but did not return a voice ID."
+        "OpenVoice server did not return a voice ID."
       );
 
     }
 
-
     voiceId =
       data.voiceId;
 
-
     localStorage.setItem(
-      "fish_voice_id",
+      "openvoice_voice_id",
       voiceId
     );
 
-
     showCloneStatus(
       "success",
-      "✅ Voice clone created successfully! You can now generate speech."
+      "✅ Voice clone created successfully!"
     );
-
 
     cloneBtn.innerHTML =
       "🧬 Create Voice Clone";
 
+    /*
+     * Allow another clone if user wants
+     * to replace the current voice.
+     */
+
+    cloneBtn.disabled = false;
 
   }catch(error){
 
@@ -1408,16 +1175,12 @@ async function createVoiceClone(){
       error
     );
 
-
     showCloneStatus(
       "error",
       `❌ ${error.message}`
     );
 
-
-    cloneBtn.disabled =
-      false;
-
+    cloneBtn.disabled = false;
 
     cloneBtn.innerHTML =
       "🧬 Create Voice Clone";
@@ -1428,7 +1191,7 @@ async function createVoiceClone(){
 
 
 /* =====================================================
-   GENERATE SPEECH
+   OPENVOICE SPEECH GENERATION
 ===================================================== */
 
 async function generateSpeech(){
@@ -1444,10 +1207,8 @@ async function generateSpeech(){
 
   }
 
-
   const text =
     script.value.trim();
-
 
   if(!text){
 
@@ -1459,7 +1220,6 @@ async function generateSpeech(){
     return;
 
   }
-
 
   if(
     generationsUsed >=
@@ -1475,20 +1235,15 @@ async function generateSpeech(){
 
   }
 
-
-  generateBtn.disabled =
-    true;
-
+  generateBtn.disabled = true;
 
   generateBtn.innerHTML =
     '<span class="loading"></span> Generating...';
 
-
   showGenerationStatus(
     "info",
-    "Generating your cloned voice... Please wait."
+    "OpenVoice is generating your speech..."
   );
-
 
   try{
 
@@ -1518,18 +1273,15 @@ async function generateSpeech(){
         }
       );
 
-
     if(!response.ok){
 
       let message =
         `Speech generation failed (${response.status}).`;
 
-
       const contentType =
         response.headers.get(
           "content-type"
         ) || "";
-
 
       try{
 
@@ -1542,7 +1294,6 @@ async function generateSpeech(){
           const error =
             await response.json();
 
-
           message =
             error.message ||
             error.detail ||
@@ -1552,7 +1303,6 @@ async function generateSpeech(){
 
           const errorText =
             await response.text();
-
 
           if(errorText){
 
@@ -1572,90 +1322,68 @@ async function generateSpeech(){
 
       }
 
-
-      throw new Error(
-        message
-      );
+      throw new Error(message);
 
     }
-
 
     const contentType =
       response.headers.get(
         "content-type"
       ) || "";
 
-
     if(
-      !contentType.includes(
-        "audio"
-      )
+      !contentType.includes("audio")
     ){
 
       const serverText =
         await response.text();
 
-
       throw new Error(
         serverText ||
-        "The server did not return an audio file."
+        "The OpenVoice server did not return audio."
       );
 
     }
-
 
     const blob =
       await response.blob();
 
-
     if(blob.size === 0){
 
       throw new Error(
-        "The server returned an empty audio file."
+        "The OpenVoice server returned an empty audio file."
       );
 
     }
 
-
     const audioURL =
-      URL.createObjectURL(
-        blob
-      );
-
+      URL.createObjectURL(blob);
 
     generatedAudio.src =
       audioURL;
 
-
     audioResult.style.display =
       "block";
-
 
     downloadBtn.href =
       audioURL;
 
-
     downloadBtn.download =
       "voice-clone.mp3";
 
-
     generationsUsed++;
-
 
     localStorage.setItem(
       "voice_generations_used",
       generationsUsed
     );
 
-
     updateCounter();
-
 
     showGenerationStatus(
       "success",
       "✅ Your cloned voice has been generated successfully."
     );
-
 
     try{
 
@@ -1669,14 +1397,12 @@ async function generateSpeech(){
 
     }
 
-
   }catch(error){
 
     console.error(
-      "GENERATE ERROR:",
+      "OPENVOICE GENERATION ERROR:",
       error
     );
-
 
     showGenerationStatus(
       "error",
@@ -1685,10 +1411,7 @@ async function generateSpeech(){
 
   }
 
-
-  generateBtn.disabled =
-    false;
-
+  generateBtn.disabled = false;
 
   generateBtn.innerHTML =
     "🔊 Generate Voice";
@@ -1708,10 +1431,8 @@ function showCloneStatus(
   cloneStatus.className =
     `clone-status status ${type}`;
 
-
   cloneStatus.textContent =
     message;
-
 
   cloneStatus.style.display =
     "block";
@@ -1727,10 +1448,8 @@ function showGenerationStatus(
   generationStatus.className =
     `status ${type}`;
 
-
   generationStatus.textContent =
     message;
-
 
   generationStatus.style.display =
     "block";
@@ -1745,9 +1464,7 @@ function showGenerationStatus(
 function openLogin(){
 
   document
-    .getElementById(
-      "loginBox"
-    )
+    .getElementById("loginBox")
     .style.display =
       "flex";
 
@@ -1757,9 +1474,7 @@ function openLogin(){
 function closeLogin(){
 
   document
-    .getElementById(
-      "loginBox"
-    )
+    .getElementById("loginBox")
     .style.display =
       "none";
 
@@ -1770,20 +1485,14 @@ async function login(){
 
   const email =
     document
-      .getElementById(
-        "email"
-      )
+      .getElementById("email")
       .value
       .trim();
 
-
   const password =
     document
-      .getElementById(
-        "password"
-      )
+      .getElementById("password")
       .value;
-
 
   if(!email || !password){
 
@@ -1796,12 +1505,10 @@ async function login(){
 
   }
 
-
   showLoginStatus(
     "info",
     "Logging in..."
   );
-
 
   try{
 
@@ -1816,30 +1523,25 @@ async function login(){
           password
         });
 
-
     if(error){
 
       throw error;
 
     }
 
-
     showLoginStatus(
       "success",
       "Login successful."
     );
 
-
     updateUserUI(
       data.user
     );
-
 
     setTimeout(
       closeLogin,
       700
     );
-
 
   }catch(error){
 
@@ -1847,7 +1549,6 @@ async function login(){
       "Login error:",
       error
     );
-
 
     showLoginStatus(
       "error",
@@ -1867,20 +1568,14 @@ async function signup(){
 
   const email =
     document
-      .getElementById(
-        "email"
-      )
+      .getElementById("email")
       .value
       .trim();
 
-
   const password =
     document
-      .getElementById(
-        "password"
-      )
+      .getElementById("password")
       .value;
-
 
   if(!email || !password){
 
@@ -1893,7 +1588,6 @@ async function signup(){
 
   }
 
-
   if(password.length < 6){
 
     showLoginStatus(
@@ -1905,12 +1599,10 @@ async function signup(){
 
   }
 
-
   showLoginStatus(
     "info",
     "Creating account..."
   );
-
 
   try{
 
@@ -1925,17 +1617,13 @@ async function signup(){
           password
         });
 
-
     if(error){
 
       throw error;
 
     }
 
-
-    if(
-      data.user
-    ){
+    if(data.user){
 
       updateUserUI(
         data.user
@@ -1943,12 +1631,10 @@ async function signup(){
 
     }
 
-
     showLoginStatus(
       "success",
       "Account created. Check your email if confirmation is enabled."
     );
-
 
   }catch(error){
 
@@ -1956,7 +1642,6 @@ async function signup(){
       "Signup error:",
       error
     );
-
 
     showLoginStatus(
       "error",
@@ -1982,14 +1667,11 @@ function showLoginStatus(
       "loginStatus"
     );
 
-
   box.className =
     `status ${type}`;
 
-
   box.textContent =
     message;
-
 
   box.style.display =
     "block";
@@ -2018,10 +1700,7 @@ async function logout(){
 
   }
 
-
-  updateUserUI(
-    null
-  );
+  updateUserUI(null);
 
 }
 
@@ -2030,39 +1709,30 @@ async function logout(){
    USER UI
 ===================================================== */
 
-function updateUserUI(
-  user
-){
+function updateUserUI(user){
 
   const loginBtn =
     document.getElementById(
       "loginBtn"
     );
 
-
   const logoutBtn =
     document.getElementById(
       "logoutBtn"
     );
-
 
   const userInfo =
     document.getElementById(
       "userInfo"
     );
 
-
   if(user){
 
-    loginBtn.classList.add(
-      "hidden"
-    );
-
+    loginBtn.classList.add("hidden");
 
     logoutBtn.classList.remove(
       "hidden"
     );
-
 
     userInfo.textContent =
       user.email ||
@@ -2074,11 +1744,9 @@ function updateUserUI(
       "hidden"
     );
 
-
     logoutBtn.classList.add(
       "hidden"
     );
-
 
     userInfo.textContent =
       "Guest";
@@ -2103,7 +1771,6 @@ async function checkUser(){
         .auth
         .getUser();
 
-
     updateUserUI(
       data.user ||
       null
@@ -2116,15 +1783,11 @@ async function checkUser(){
       error
     );
 
-
-    updateUserUI(
-      null
-    );
+    updateUserUI(null);
 
   }
 
 }
-
 
 checkUser();
 
@@ -2151,7 +1814,7 @@ supabaseClient
 
 
 /* =====================================================
-   LOAD SAVED VOICE
+   LOAD SAVED OPENVOICE CLONE
 ===================================================== */
 
 function loadSavedClone(){
@@ -2160,19 +1823,18 @@ function loadSavedClone(){
 
     showCloneStatus(
       "success",
-      "✅ Your previously created voice clone is ready to use."
+      "✅ Your previously created OpenVoice clone is ready to use."
     );
 
   }
 
 }
 
-
 loadSavedClone();
 
 
 /* =====================================================
-   CLEANUP AUDIO
+   CLEANUP
 ===================================================== */
 
 window.addEventListener(
