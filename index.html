@@ -1,381 +1,2165 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+<title>Voice Clone Studio</title>
 
-  <title>VoiceClone AI</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://js.paystack.co/v1/inline.js"></script>
 
-  <link
-    rel="stylesheet"
-    href="index.css"
-  >
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  font-family:Arial,Helvetica,sans-serif;
+  background:#f6f7fb;
+  color:#171717;
+}
+
+header{
+  background:#111827;
+  color:white;
+  padding:18px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.logo{
+  font-size:20px;
+  font-weight:800;
+}
+
+.header-right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+button{
+  border:0;
+  cursor:pointer;
+  border-radius:10px;
+  padding:12px 18px;
+  font-size:14px;
+  font-weight:700;
+}
+
+.login-btn{
+  background:white;
+  color:#111827;
+}
+
+.logout-btn{
+  background:#ef4444;
+  color:white;
+}
+
+.container{
+  max-width:900px;
+  margin:30px auto;
+  padding:0 18px;
+}
+
+.hero{
+  text-align:center;
+  margin-bottom:28px;
+}
+
+.hero h1{
+  font-size:34px;
+  margin-bottom:10px;
+}
+
+.hero p{
+  color:#6b7280;
+  line-height:1.5;
+}
+
+.card{
+  background:white;
+  border-radius:18px;
+  padding:22px;
+  margin-bottom:20px;
+  box-shadow:0 8px 30px rgba(0,0,0,.06);
+}
+
+.card h2{
+  font-size:20px;
+  margin-bottom:8px;
+}
+
+.card p{
+  color:#6b7280;
+  font-size:14px;
+  line-height:1.5;
+}
+
+.record-area{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-top:18px;
+}
+
+.primary{
+  background:#111827;
+  color:white;
+}
+
+.secondary{
+  background:#e5e7eb;
+  color:#111827;
+}
+
+.danger{
+  background:#dc2626;
+  color:white;
+}
+
+.file-label{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  background:#2563eb;
+  color:white;
+  padding:12px 18px;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:700;
+  font-size:14px;
+}
+
+#voiceFile{
+  display:none;
+}
+
+.audio-preview{
+  width:100%;
+  margin-top:16px;
+  display:none;
+}
+
+.voice-name{
+  width:100%;
+  padding:13px;
+  border:1px solid #d1d5db;
+  border-radius:10px;
+  margin-top:16px;
+  font-size:15px;
+}
+
+.clone-btn{
+  width:100%;
+  margin-top:14px;
+  background:#7c3aed;
+  color:white;
+}
+
+.status{
+  display:none;
+  padding:13px;
+  border-radius:10px;
+  margin-top:15px;
+  font-size:14px;
+  line-height:1.4;
+}
+
+.status.info{
+  display:block;
+  background:#eff6ff;
+  color:#1d4ed8;
+}
+
+.status.success{
+  display:block;
+  background:#ecfdf5;
+  color:#047857;
+}
+
+.status.error{
+  display:block;
+  background:#fef2f2;
+  color:#b91c1c;
+}
+
+textarea{
+  width:100%;
+  min-height:180px;
+  resize:vertical;
+  border:1px solid #d1d5db;
+  border-radius:12px;
+  padding:15px;
+  font-size:16px;
+  outline:none;
+  margin-top:14px;
+}
+
+textarea:focus,
+input:focus{
+  border-color:#7c3aed;
+}
+
+.controls{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-top:15px;
+  flex-wrap:wrap;
+}
+
+.speed{
+  padding:11px;
+  border:1px solid #d1d5db;
+  border-radius:9px;
+}
+
+.generate{
+  background:#7c3aed;
+  color:white;
+}
+
+.generate:disabled,
+.clone-btn:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+.audio-result{
+  margin-top:18px;
+  display:none;
+}
+
+.audio-result audio{
+  width:100%;
+}
+
+.download{
+  display:inline-block;
+  background:#059669;
+  color:white;
+  padding:12px 18px;
+  border-radius:10px;
+  margin-top:12px;
+  text-decoration:none;
+  font-weight:700;
+}
+
+.counter{
+  background:#fff7ed;
+  color:#c2410c;
+  padding:12px;
+  border-radius:10px;
+  margin-top:15px;
+  font-weight:700;
+}
+
+.clone-status{
+  margin-top:15px;
+  padding:12px;
+  background:#f3f4f6;
+  border-radius:10px;
+  display:none;
+}
+
+.login-box{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  z-index:999;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.login-card{
+  width:100%;
+  max-width:420px;
+  background:white;
+  border-radius:18px;
+  padding:25px;
+}
+
+.login-card h2{
+  margin-bottom:18px;
+}
+
+.login-card input{
+  width:100%;
+  padding:13px;
+  border:1px solid #d1d5db;
+  border-radius:10px;
+  margin-bottom:12px;
+}
+
+.login-card button{
+  width:100%;
+  margin-top:7px;
+}
+
+.close-login{
+  background:#e5e7eb;
+  color:#111827;
+}
+
+.plan-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin-top:18px;
+}
+
+.plan{
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  padding:18px;
+  text-align:center;
+}
+
+.plan h3{
+  margin-bottom:8px;
+}
+
+.plan strong{
+  display:block;
+  font-size:22px;
+  margin-bottom:12px;
+}
+
+.subscribe{
+  background:#111827;
+  color:white;
+  width:100%;
+}
+
+.user-info{
+  font-size:13px;
+  opacity:.9;
+}
+
+.hidden{
+  display:none!important;
+}
+
+@media(max-width:650px){
+  .hero h1{
+    font-size:27px;
+  }
+
+  .plan-grid{
+    grid-template-columns:1fr;
+  }
+
+  header{
+    padding:14px;
+  }
+
+  .user-info{
+    display:none;
+  }
+}
+</style>
 </head>
 
 <body>
 
-  <div class="app">
+<header>
 
-    <header class="topbar">
+  <div class="logo">
+    🎙️ Voice Clone Studio
+  </div>
 
-      <div class="brand">
-        <div class="brand-icon">V</div>
+  <div class="header-right">
 
-        <div>
-          <h1>VoiceClone</h1>
-          <span>AI Voice Studio</span>
-        </div>
-      </div>
+    <span class="user-info" id="userInfo">
+      Guest
+    </span>
 
-      <div class="status">
-        <span class="status-dot"></span>
-        Fish Audio
-      </div>
+    <button class="login-btn" id="loginBtn" onclick="openLogin()">
+      Login
+    </button>
 
-    </header>
+    <button class="logout-btn hidden" id="logoutBtn" onclick="logout()">
+      Logout
+    </button>
 
+  </div>
 
-    <main>
+</header>
 
-      <section class="hero">
 
-        <div class="badge">
-          AI VOICE STUDIO
-        </div>
+<div class="container">
 
-        <h2>
-          Turn your voice into
-          <span>AI speech.</span>
-        </h2>
+  <div class="hero">
 
-        <p>
-          Upload or record a short voice sample,
-          create your voice model, then type anything
-          and generate natural speech.
-        </p>
+    <h1>Create Your AI Voice</h1>
 
-      </section>
-
-
-      <!-- STEP 1 -->
-
-      <section class="card">
-
-        <div class="step">
-
-          <div class="step-number">
-            01
-          </div>
-
-          <div>
-            <h3>Voice Sample</h3>
-            <p>
-              Upload a clean recording of the voice.
-            </p>
-          </div>
-
-        </div>
-
-
-        <div
-          class="upload-box"
-          id="uploadBox"
-        >
-
-          <div class="upload-icon">
-            🎙️
-          </div>
-
-          <h4>
-            Upload your voice
-          </h4>
-
-          <p>
-            MP3, WAV, M4A, OGG or WebM
-          </p>
-
-          <label
-            class="upload-button"
-            for="voiceFile"
-          >
-            Choose Audio
-          </label>
-
-          <input
-            type="file"
-            id="voiceFile"
-            accept="audio/*"
-            hidden
-          >
-
-          <button
-            id="recordButton"
-            class="record-button"
-            type="button"
-          >
-            ● Record Voice
-          </button>
-
-        </div>
-
-
-        <div
-          id="recordingPanel"
-          class="recording-panel hidden"
-        >
-
-          <div class="recording-indicator">
-            <span></span>
-            Recording...
-          </div>
-
-          <div
-            id="recordTimer"
-            class="timer"
-          >
-            00:00
-          </div>
-
-          <button
-            id="stopRecording"
-            class="stop-button"
-          >
-            Stop Recording
-          </button>
-
-        </div>
-
-
-        <div
-          id="audioPreview"
-          class="audio-preview hidden"
-        >
-
-          <div class="preview-title">
-            Voice sample selected
-          </div>
-
-          <audio
-            id="sampleAudio"
-            controls
-          ></audio>
-
-        </div>
-
-
-        <div class="input-group">
-
-          <label>
-            Voice Name
-          </label>
-
-          <input
-            id="voiceName"
-            type="text"
-            placeholder="e.g. My Voice"
-            maxlength="50"
-          >
-
-        </div>
-
-
-        <button
-          id="cloneButton"
-          class="primary-button"
-        >
-          Create Voice Clone
-        </button>
-
-
-        <div
-          id="cloneStatus"
-          class="status-message"
-        ></div>
-
-      </section>
-
-
-      <!-- STEP 2 -->
-
-      <section class="card">
-
-        <div class="step">
-
-          <div class="step-number">
-            02
-          </div>
-
-          <div>
-            <h3>Generate Speech</h3>
-
-            <p>
-              Enter text and generate speech
-              using your cloned voice.
-            </p>
-          </div>
-
-        </div>
-
-
-        <div class="voice-status">
-
-          <span
-            id="voiceStatusDot"
-            class="offline"
-          ></span>
-
-          <span id="voiceStatusText">
-            No voice selected
-          </span>
-
-        </div>
-
-
-        <div class="input-group">
-
-          <label>
-            Text
-          </label>
-
-          <textarea
-            id="textInput"
-            maxlength="5000"
-            placeholder="Type something you want your cloned voice to say..."
-          ></textarea>
-
-          <div class="character-count">
-
-            <span id="charCount">
-              0
-            </span>
-
-            / 5000
-
-          </div>
-
-        </div>
-
-
-        <div class="controls">
-
-          <div class="input-group">
-
-            <label>
-              Speech Speed
-            </label>
-
-            <select id="speedSelect">
-
-              <option value="0.75">
-                0.75x
-              </option>
-
-              <option value="1" selected>
-                1.0x
-              </option>
-
-              <option value="1.25">
-                1.25x
-              </option>
-
-              <option value="1.5">
-                1.5x
-              </option>
-
-              <option value="1.75">
-                1.75x
-              </option>
-
-            </select>
-
-          </div>
-
-        </div>
-
-
-        <button
-          id="generateButton"
-          class="primary-button"
-          disabled
-        >
-          Generate Voice
-        </button>
-
-
-        <div
-          id="generateStatus"
-          class="status-message"
-        ></div>
-
-
-        <div
-          id="result"
-          class="result hidden"
-        >
-
-          <div class="result-header">
-
-            <div>
-              <span class="result-label">
-                GENERATED AUDIO
-              </span>
-
-              <h3>
-                Your voice is ready
-              </h3>
-            </div>
-
-          </div>
-
-
-          <audio
-            id="resultAudio"
-            controls
-          ></audio>
-
-
-          <a
-            id="downloadButton"
-            class="download-button"
-            download="voiceclone.mp3"
-          >
-            Download MP3
-          </a>
-
-        </div>
-
-      </section>
-
-
-      <div class="notice">
-
-        <strong>⚠️ Use responsibly</strong>
-
-        <p>
-          Only clone voices that you own or have
-          permission to use. Do not use generated
-          voices for impersonation, fraud or deception.
-        </p>
-
-      </div>
-
-    </main>
-
-
-    <footer>
-
-      Powered by Fish Audio
-
-    </footer>
+    <p>
+      Record or upload a voice sample, create your voice clone,
+      then type anything and generate speech using your cloned voice.
+    </p>
 
   </div>
 
 
-  <script src="index.js"></script>
+  <!-- FREE COUNTER -->
+
+  <div class="counter" id="counter">
+    Free generations remaining: 5
+  </div>
+
+
+  <!-- VOICE CLONING -->
+
+  <div class="card">
+
+    <h2>🎙️ 1. Create Your Voice Clone</h2>
+
+    <p>
+      Use your own voice or a voice you have permission to clone.
+      A clear recording gives better results.
+    </p>
+
+    <div class="record-area">
+
+      <button
+        class="primary"
+        id="recordBtn"
+        onclick="toggleRecording()">
+        🎙️ Start Recording
+      </button>
+
+      <label class="file-label">
+        📁 Upload Voice
+        <input
+          type="file"
+          id="voiceFile"
+          accept="audio/*">
+      </label>
+
+    </div>
+
+
+    <audio
+      id="voicePreview"
+      class="audio-preview"
+      controls>
+    </audio>
+
+
+    <input
+      id="voiceName"
+      class="voice-name"
+      type="text"
+      placeholder="Give your voice a name, e.g. My Voice">
+
+
+    <button
+      class="clone-btn"
+      id="cloneBtn"
+      onclick="createVoiceClone()"
+      disabled>
+
+      🧬 Create Voice Clone
+
+    </button>
+
+
+    <div
+      id="cloneStatus"
+      class="clone-status">
+    </div>
+
+  </div>
+
+
+
+  <!-- TEXT GENERATION -->
+
+  <div class="card">
+
+    <h2>✍️ 2. Generate Speech</h2>
+
+    <p>
+      Type the words you want your cloned voice to say.
+    </p>
+
+
+    <textarea
+      id="script"
+      maxlength="5000"
+      placeholder="Type what you want your cloned voice to say..."></textarea>
+
+
+    <div class="controls">
+
+      <label>
+        Speed:
+      </label>
+
+      <select
+        id="speed"
+        class="speed">
+
+        <option value="0.75">0.75x</option>
+        <option value="1" selected>1x</option>
+        <option value="1.25">1.25x</option>
+        <option value="1.5">1.5x</option>
+        <option value="2">2x</option>
+
+      </select>
+
+
+      <button
+        class="generate"
+        id="generateBtn"
+        onclick="generateSpeech()">
+
+        🔊 Generate Voice
+
+      </button>
+
+    </div>
+
+
+    <div
+      id="generationStatus"
+      class="status">
+    </div>
+
+
+    <div
+      id="audioResult"
+      class="audio-result">
+
+      <audio
+        id="generatedAudio"
+        controls>
+      </audio>
+
+      <br>
+
+      <a
+        id="downloadBtn"
+        class="download"
+        download="voice-clone.mp3">
+
+        ⬇️ Download MP3
+
+      </a>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- SUBSCRIPTION -->
+
+  <div class="card">
+
+    <h2>💳 Upgrade</h2>
+
+    <p>
+      Need more generations? Choose a subscription plan.
+    </p>
+
+
+    <div class="plan-grid">
+
+      <div class="plan">
+
+        <h3>Basic</h3>
+
+        <strong>₦2,000</strong>
+
+        <p>Weekly</p>
+
+        <button
+          class="subscribe"
+          onclick="payPlan('basic')">
+
+          Subscribe
+
+        </button>
+
+      </div>
+
+
+      <div class="plan">
+
+        <h3>Standard</h3>
+
+        <strong>₦3,000</strong>
+
+        <p>Weekly</p>
+
+        <button
+          class="subscribe"
+          onclick="payPlan('standard')">
+
+          Subscribe
+
+        </button>
+
+      </div>
+
+
+      <div class="plan">
+
+        <h3>Pro</h3>
+
+        <strong>₦5,000</strong>
+
+        <p>Weekly</p>
+
+        <button
+          class="subscribe"
+          onclick="payPlan('pro')">
+
+          Subscribe
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- LOGIN MODAL -->
+
+<div
+  class="login-box"
+  id="loginBox">
+
+  <div class="login-card">
+
+    <h2>Login / Create Account</h2>
+
+
+    <input
+      type="email"
+      id="email"
+      placeholder="Email address">
+
+
+    <input
+      type="password"
+      id="password"
+      placeholder="Password">
+
+
+    <button
+      class="primary"
+      onclick="login()">
+
+      Login
+
+    </button>
+
+
+    <button
+      class="secondary"
+      onclick="signup()">
+
+      Create Account
+
+    </button>
+
+
+    <button
+      class="close-login"
+      onclick="closeLogin()">
+
+      Close
+
+    </button>
+
+
+    <div
+      id="loginStatus"
+      class="status">
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<script>
+
+/* =====================================================
+   CONFIGURATION
+===================================================== */
+
+
+/*
+   THIS IS YOUR NEW VOICE CLONING BACKEND
+*/
+const VOICE_API =
+  "https://ai-voice-cloned.onrender.com";
+
+
+/*
+   KEEP YOUR OLD ACCOUNT/PAYMENT BACKEND HERE.
+
+   If your old backend contains:
+   /subscription
+   /verify-payment
+
+   keep its URL here.
+*/
+const ACCOUNT_API =
+  "https://ai-voice-backend-pl9h.onrender.com";
+
+
+/* Supabase */
+
+const SUPABASE_URL =
+  "https://ihoxjwqlvuskkqrfowbr.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_TAesDbD1gUQ5p9IoYhZWJw_tBHL5g4F";
+
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+/* Paystack public key */
+
+const PAYSTACK_PUBLIC_KEY =
+  "pk_test_YOUR_PAYSTACK_PUBLIC_KEY";
+
+
+/* =====================================================
+   GLOBAL VARIABLES
+===================================================== */
+
+let selectedVoiceFile = null;
+
+let mediaRecorder = null;
+
+let recordedChunks = [];
+
+let isRecording = false;
+
+
+/*
+   Save cloned voice ID in browser.
+*/
+
+let voiceId =
+  localStorage.getItem("fish_voice_id") || null;
+
+
+/*
+   Free generations
+*/
+
+const FREE_GENERATIONS = 5;
+
+let generationsUsed =
+  Number(
+    localStorage.getItem("voice_generations_used") || 0
+  );
+
+
+/* =====================================================
+   ELEMENTS
+===================================================== */
+
+const voiceFile =
+  document.getElementById("voiceFile");
+
+const voicePreview =
+  document.getElementById("voicePreview");
+
+const cloneBtn =
+  document.getElementById("cloneBtn");
+
+const cloneStatus =
+  document.getElementById("cloneStatus");
+
+const recordBtn =
+  document.getElementById("recordBtn");
+
+const script =
+  document.getElementById("script");
+
+const speed =
+  document.getElementById("speed");
+
+const generateBtn =
+  document.getElementById("generateBtn");
+
+const generatedAudio =
+  document.getElementById("generatedAudio");
+
+const audioResult =
+  document.getElementById("audioResult");
+
+const downloadBtn =
+  document.getElementById("downloadBtn");
+
+const generationStatus =
+  document.getElementById("generationStatus");
+
+const counter =
+  document.getElementById("counter");
+
+
+
+/* =====================================================
+   FREE GENERATION COUNTER
+===================================================== */
+
+function updateCounter(){
+
+  const remaining =
+    Math.max(
+      0,
+      FREE_GENERATIONS - generationsUsed
+    );
+
+  counter.textContent =
+    `Free generations remaining: ${remaining}`;
+
+}
+
+
+updateCounter();
+
+
+
+/* =====================================================
+   FILE UPLOAD
+===================================================== */
+
+voiceFile.addEventListener(
+  "change",
+  function(){
+
+    const file =
+      this.files[0];
+
+    if(!file){
+
+      selectedVoiceFile = null;
+
+      cloneBtn.disabled = true;
+
+      return;
+    }
+
+
+    selectedVoiceFile = file;
+
+
+    /*
+       Preview uploaded audio
+    */
+
+    const url =
+      URL.createObjectURL(file);
+
+    voicePreview.src = url;
+
+    voicePreview.style.display =
+      "block";
+
+
+    cloneBtn.disabled = false;
+
+
+    showCloneStatus(
+      "success",
+      `Voice file selected: ${file.name}`
+    );
+
+  }
+);
+
+
+
+/* =====================================================
+   RECORD VOICE
+===================================================== */
+
+async function toggleRecording(){
+
+  if(isRecording){
+
+    stopRecording();
+
+  }else{
+
+    await startRecording();
+
+  }
+
+}
+
+
+
+/* START */
+
+async function startRecording(){
+
+  try{
+
+    const stream =
+      await navigator.mediaDevices.getUserMedia({
+        audio:true
+      });
+
+
+    recordedChunks = [];
+
+
+    let mimeType = "";
+
+
+    /*
+       iPhone/Safari usually supports audio/mp4.
+       Chrome usually supports audio/webm.
+    */
+
+    if(
+      MediaRecorder.isTypeSupported(
+        "audio/mp4"
+      )
+    ){
+
+      mimeType =
+        "audio/mp4";
+
+    }else if(
+      MediaRecorder.isTypeSupported(
+        "audio/webm"
+      )
+    ){
+
+      mimeType =
+        "audio/webm";
+
+    }else{
+
+      mimeType = "";
+
+    }
+
+
+    mediaRecorder =
+      mimeType
+      ? new MediaRecorder(
+          stream,
+          {mimeType}
+        )
+      : new MediaRecorder(stream);
+
+
+    mediaRecorder.ondataavailable =
+      function(event){
+
+        if(event.data.size > 0){
+
+          recordedChunks.push(
+            event.data
+          );
+
+        }
+
+      };
+
+
+    mediaRecorder.onstop =
+      function(){
+
+        const type =
+          mimeType || "audio/webm";
+
+
+        const blob =
+          new Blob(
+            recordedChunks,
+            {type}
+          );
+
+
+        let extension =
+          "webm";
+
+
+        if(type.includes("mp4")){
+
+          extension = "m4a";
+
+        }
+
+
+        selectedVoiceFile =
+          new File(
+            [blob],
+            `voice-recording.${extension}`,
+            {
+              type
+            }
+          );
+
+
+        const url =
+          URL.createObjectURL(blob);
+
+
+        voicePreview.src =
+          url;
+
+        voicePreview.style.display =
+          "block";
+
+
+        cloneBtn.disabled =
+          false;
+
+
+        showCloneStatus(
+          "success",
+          "Recording ready. You can now create your voice clone."
+        );
+
+
+        /*
+           Stop microphone
+        */
+
+        stream
+          .getTracks()
+          .forEach(
+            track => track.stop()
+          );
+
+      };
+
+
+    mediaRecorder.start();
+
+
+    isRecording = true;
+
+
+    recordBtn.textContent =
+      "⏹️ Stop Recording";
+
+
+    recordBtn.classList.add(
+      "danger"
+    );
+
+
+    showCloneStatus(
+      "info",
+      "Recording... Speak clearly for at least 10 seconds."
+    );
+
+
+  }catch(error){
+
+    console.error(error);
+
+
+    showCloneStatus(
+      "error",
+      "Microphone permission was denied or recording is not supported by this browser."
+    );
+
+  }
+
+}
+
+
+
+/* STOP */
+
+function stopRecording(){
+
+  if(
+    mediaRecorder &&
+    mediaRecorder.state !== "inactive"
+  ){
+
+    mediaRecorder.stop();
+
+  }
+
+
+  isRecording = false;
+
+
+  recordBtn.textContent =
+    "🎙️ Start Recording";
+
+
+  recordBtn.classList.remove(
+    "danger"
+  );
+
+}
+
+
+
+/* =====================================================
+   CREATE VOICE CLONE
+===================================================== */
+
+async function createVoiceClone(){
+
+  if(!selectedVoiceFile){
+
+    showCloneStatus(
+      "error",
+      "Please record or upload a voice sample first."
+    );
+
+    return;
+
+  }
+
+
+  cloneBtn.disabled = true;
+
+
+  showCloneStatus(
+    "info",
+    "Creating your voice clone... Please wait."
+  );
+
+
+  try{
+
+    const formData =
+      new FormData();
+
+
+    formData.append(
+      "voice",
+      selectedVoiceFile
+    );
+
+
+    const nameInput =
+      document
+        .getElementById("voiceName")
+        .value
+        .trim();
+
+
+    formData.append(
+      "name",
+      nameInput || "My Voice"
+    );
+
+
+    const response =
+      await fetch(
+        `${VOICE_API}/api/clone`,
+        {
+          method:"POST",
+          body:formData
+        }
+      );
+
+
+    const contentType =
+      response.headers.get(
+        "content-type"
+      ) || "";
+
+
+    let data;
+
+
+    if(
+      contentType.includes(
+        "application/json"
+      )
+    ){
+
+      data =
+        await response.json();
+
+    }else{
+
+      data = {
+        message:
+          await response.text()
+      };
+
+    }
+
+
+    if(!response.ok){
+
+      console.error(
+        "Clone error:",
+        data
+      );
+
+
+      throw new Error(
+        data.message ||
+        data.detail ||
+        "Voice cloning failed."
+      );
+
+    }
+
+
+    if(!data.voiceId){
+
+      throw new Error(
+        "The server did not return a voice ID."
+      );
+
+    }
+
+
+    /*
+       SAVE VOICE ID
+    */
+
+    voiceId =
+      data.voiceId;
+
+
+    localStorage.setItem(
+      "fish_voice_id",
+      voiceId
+    );
+
+
+    showCloneStatus(
+      "success",
+      "✅ Voice clone created successfully! You can now type text and generate speech."
+    );
+
+
+    generateBtn.disabled =
+      false;
+
+
+  }catch(error){
+
+    console.error(error);
+
+
+    showCloneStatus(
+      "error",
+      `❌ ${error.message}`
+    );
+
+
+    cloneBtn.disabled =
+      false;
+
+  }
+
+}
+
+
+
+/* =====================================================
+   GENERATE SPEECH
+===================================================== */
+
+async function generateSpeech(){
+
+  /*
+     Make sure clone exists
+  */
+
+  if(!voiceId){
+
+    showGenerationStatus(
+      "error",
+      "Please create your voice clone first."
+    );
+
+    return;
+
+  }
+
+
+  /*
+     Check text
+  */
+
+  const text =
+    script.value.trim();
+
+
+  if(!text){
+
+    showGenerationStatus(
+      "error",
+      "Please type something for your voice to say."
+    );
+
+    return;
+
+  }
+
+
+  /*
+     Free usage
+  */
+
+  if(
+    generationsUsed >= FREE_GENERATIONS
+  ){
+
+    showGenerationStatus(
+      "error",
+      "You have used your 5 free generations. Please subscribe to continue."
+    );
+
+    openSubscriptionMessage();
+
+    return;
+
+  }
+
+
+  generateBtn.disabled =
+    true;
+
+
+  showGenerationStatus(
+    "info",
+    "Generating your cloned voice... Please wait."
+  );
+
+
+  try{
+
+    const response =
+      await fetch(
+        `${VOICE_API}/api/generate`,
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+              "application/json"
+          },
+
+          body:JSON.stringify({
+
+            text:text,
+
+            voiceId:voiceId,
+
+            speed:Number(
+              speed.value
+            )
+
+          })
+
+        }
+      );
+
+
+    if(!response.ok){
+
+      let message =
+        "Speech generation failed.";
+
+
+      try{
+
+        const error =
+          await response.json();
+
+
+        message =
+          error.message ||
+          message;
+
+      }catch(e){}
+
+
+      throw new Error(message);
+
+    }
+
+
+    /*
+       Receive MP3
+    */
+
+    const blob =
+      await response.blob();
+
+
+    const audioURL =
+      URL.createObjectURL(
+        blob
+      );
+
+
+    generatedAudio.src =
+      audioURL;
+
+
+    audioResult.style.display =
+      "block";
+
+
+    downloadBtn.href =
+      audioURL;
+
+
+    downloadBtn.download =
+      "voice-clone.mp3";
+
+
+    /*
+       Count generation
+    */
+
+    generationsUsed++;
+
+
+    localStorage.setItem(
+      "voice_generations_used",
+      generationsUsed
+    );
+
+
+    updateCounter();
+
+
+    showGenerationStatus(
+      "success",
+      "✅ Your voice has been generated successfully."
+    );
+
+
+    /*
+       Automatically play
+    */
+
+    try{
+
+      await generatedAudio.play();
+
+    }catch(e){
+
+      /*
+         Browser may block autoplay.
+         User can press play manually.
+      */
+
+    }
+
+
+  }catch(error){
+
+    console.error(
+      "Generate error:",
+      error
+    );
+
+
+    showGenerationStatus(
+      "error",
+      `❌ ${error.message}`
+    );
+
+  }
+
+
+  generateBtn.disabled =
+    false;
+
+}
+
+
+
+/* =====================================================
+   STATUS HELPERS
+===================================================== */
+
+function showCloneStatus(
+  type,
+  message
+){
+
+  cloneStatus.className =
+    `clone-status status ${type}`;
+
+  cloneStatus.textContent =
+    message;
+
+  cloneStatus.style.display =
+    "block";
+
+}
+
+
+function showGenerationStatus(
+  type,
+  message
+){
+
+  generationStatus.className =
+    `status ${type}`;
+
+  generationStatus.textContent =
+    message;
+
+  generationStatus.style.display =
+    "block";
+
+}
+
+
+
+/* =====================================================
+   LOGIN
+===================================================== */
+
+function openLogin(){
+
+  document
+    .getElementById("loginBox")
+    .style.display =
+      "flex";
+
+}
+
+
+function closeLogin(){
+
+  document
+    .getElementById("loginBox")
+    .style.display =
+      "none";
+
+}
+
+
+async function login(){
+
+  const email =
+    document
+      .getElementById("email")
+      .value
+      .trim();
+
+
+  const password =
+    document
+      .getElementById("password")
+      .value;
+
+
+  if(!email || !password){
+
+    showLoginStatus(
+      "error",
+      "Enter your email and password."
+    );
+
+    return;
+
+  }
+
+
+  showLoginStatus(
+    "info",
+    "Logging in..."
+  );
+
+
+  try{
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .auth
+        .signInWithPassword({
+          email,
+          password
+        });
+
+
+    if(error){
+
+      throw error;
+
+    }
+
+
+    showLoginStatus(
+      "success",
+      "Login successful."
+    );
+
+
+    setTimeout(
+      closeLogin,
+      700
+    );
+
+
+    updateUserUI(
+      data.user
+    );
+
+
+  }catch(error){
+
+    showLoginStatus(
+      "error",
+      error.message
+    );
+
+  }
+
+}
+
+
+
+/* =====================================================
+   SIGNUP
+===================================================== */
+
+async function signup(){
+
+  const email =
+    document
+      .getElementById("email")
+      .value
+      .trim();
+
+
+  const password =
+    document
+      .getElementById("password")
+      .value;
+
+
+  if(!email || !password){
+
+    showLoginStatus(
+      "error",
+      "Enter email and password."
+    );
+
+    return;
+
+  }
+
+
+  if(password.length < 6){
+
+    showLoginStatus(
+      "error",
+      "Password must contain at least 6 characters."
+    );
+
+    return;
+
+  }
+
+
+  showLoginStatus(
+    "info",
+    "Creating account..."
+  );
+
+
+  try{
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .auth
+        .signUp({
+          email,
+          password
+        });
+
+
+    if(error){
+
+      throw error;
+
+    }
+
+
+    showLoginStatus(
+      "success",
+      "Account created. Check your email if confirmation is enabled."
+    );
+
+
+    if(data.user){
+
+      updateUserUI(
+        data.user
+      );
+
+    }
+
+
+  }catch(error){
+
+    showLoginStatus(
+      "error",
+      error.message
+    );
+
+  }
+
+}
+
+
+
+/* =====================================================
+   LOGIN STATUS
+===================================================== */
+
+function showLoginStatus(
+  type,
+  message
+){
+
+  const box =
+    document.getElementById(
+      "loginStatus"
+    );
+
+
+  box.className =
+    `status ${type}`;
+
+  box.textContent =
+    message;
+
+  box.style.display =
+    "block";
+
+}
+
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
+
+async function logout(){
+
+  await supabaseClient
+    .auth
+    .signOut();
+
+
+  updateUserUI(null);
+
+}
+
+
+
+/* =====================================================
+   USER UI
+===================================================== */
+
+function updateUserUI(user){
+
+  const loginBtn =
+    document.getElementById(
+      "loginBtn"
+    );
+
+
+  const logoutBtn =
+    document.getElementById(
+      "logoutBtn"
+    );
+
+
+  const userInfo =
+    document.getElementById(
+      "userInfo"
+    );
+
+
+  if(user){
+
+    loginBtn.classList.add(
+      "hidden"
+    );
+
+
+    logoutBtn.classList.remove(
+      "hidden"
+    );
+
+
+    userInfo.textContent =
+      user.email;
+
+  }else{
+
+    loginBtn.classList.remove(
+      "hidden"
+    );
+
+
+    logoutBtn.classList.add(
+      "hidden"
+    );
+
+
+    userInfo.textContent =
+      "Guest";
+
+  }
+
+}
+
+
+
+/* =====================================================
+   CHECK CURRENT USER
+===================================================== */
+
+async function checkUser(){
+
+  const {
+    data
+  } =
+    await supabaseClient
+      .auth
+      .getUser();
+
+
+  updateUserUI(
+    data.user || null
+  );
+
+}
+
+
+checkUser();
+
+
+
+/* =====================================================
+   AUTH STATE
+===================================================== */
+
+supabaseClient
+  .auth
+  .onAuthStateChange(
+    function(
+      event,
+      session
+    ){
+
+      updateUserUI(
+        session?.user || null
+      );
+
+    }
+  );
+
+
+
+/* =====================================================
+   PAYSTACK
+===================================================== */
+
+const plans = {
+
+  basic:{
+    amount:200000,
+    name:"Basic",
+    planCode:"YOUR_BASIC_PLAN_CODE"
+  },
+
+  standard:{
+    amount:300000,
+    name:"Standard",
+    planCode:"YOUR_STANDARD_PLAN_CODE"
+  },
+
+  pro:{
+    amount:500000,
+    name:"Pro",
+    planCode:"YOUR_PRO_PLAN_CODE"
+  }
+
+};
+
+
+
+async function payPlan(
+  planName
+){
+
+  const {
+    data
+  } =
+    await supabaseClient
+      .auth
+      .getUser();
+
+
+  if(!data.user){
+
+    openLogin();
+
+    showLoginStatus(
+      "error",
+      "Please login before subscribing."
+    );
+
+    return;
+
+  }
+
+
+  const plan =
+    plans[planName];
+
+
+  if(!plan){
+
+    alert(
+      "Invalid subscription plan."
+    );
+
+    return;
+
+  }
+
+
+  /*
+     Paystack payment
+  */
+
+  const handler =
+    PaystackPop.setup({
+
+      key:
+        PAYSTACK_PUBLIC_KEY,
+
+      email:
+        data.user.email,
+
+      amount:
+        plan.amount,
+
+      currency:
+        "NGN",
+
+      plan:
+        plan.planCode,
+
+      callback:
+        function(response){
+
+          verifyPayment(
+            response.reference,
+            planName
+          );
+
+        },
+
+      onClose:
+        function(){
+
+          console.log(
+            "Payment window closed."
+          );
+
+        }
+
+    });
+
+
+  handler.openIframe();
+
+}
+
+
+
+/* =====================================================
+   VERIFY PAYMENT
+===================================================== */
+
+async function verifyPayment(
+  reference,
+  planName
+){
+
+  try{
+
+    const response =
+      await fetch(
+        `${ACCOUNT_API}/verify-payment`,
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+              "application/json"
+          },
+
+          body:JSON.stringify({
+
+            reference,
+
+            plan:planName
+
+          })
+
+        }
+      );
+
+
+    const data =
+      await response.json();
+
+
+    if(!response.ok){
+
+      throw new Error(
+        data.message ||
+        "Payment verification failed."
+      );
+
+    }
+
+
+    alert(
+      "Payment successful! Your subscription has been activated."
+    );
+
+
+  }catch(error){
+
+    console.error(error);
+
+
+    alert(
+      "Payment was received but verification failed. Contact support with your payment reference."
+    );
+
+  }
+
+}
+
+
+
+/* =====================================================
+   SUBSCRIPTION MESSAGE
+===================================================== */
+
+function openSubscriptionMessage(){
+
+  alert(
+    "You have used your 5 free generations. Please choose a subscription plan below to continue."
+  );
+
+
+  window.scrollTo({
+
+    top:
+      document.body.scrollHeight,
+
+    behavior:
+      "smooth"
+
+  });
+
+}
+
+
+
+/* =====================================================
+   LOAD SAVED CLONE
+===================================================== */
+
+function loadSavedClone(){
+
+  if(voiceId){
+
+    showCloneStatus(
+      "success",
+      "✅ Your previously created voice clone is ready to use."
+    );
+
+
+    cloneBtn.disabled =
+      false;
+
+  }
+
+}
+
+
+loadSavedClone();
+
+
+
+/* =====================================================
+   CLEAR OLD CLONE
+===================================================== */
+
+function clearSavedClone(){
+
+  localStorage.removeItem(
+    "fish_voice_id"
+  );
+
+
+  voiceId =
+    null;
+
+
+  showCloneStatus(
+    "info",
+    "Saved voice clone removed. Create a new clone."
+  );
+
+}
+
+
+</script>
 
 </body>
 </html>
