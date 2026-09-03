@@ -7,7 +7,6 @@
 <title>Voice Clone Studio</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://js.paystack.co/v1/inline.js"></script>
 
 <style>
 *{
@@ -49,6 +48,10 @@ button{
   padding:12px 18px;
   font-size:14px;
   font-weight:700;
+}
+
+button:active{
+  transform:scale(.98);
 }
 
 .login-btn{
@@ -153,6 +156,7 @@ button{
   border-radius:10px;
   margin-top:16px;
   font-size:15px;
+  outline:none;
 }
 
 .clone-btn{
@@ -199,10 +203,12 @@ textarea{
   font-size:16px;
   outline:none;
   margin-top:14px;
+  font-family:Arial,Helvetica,sans-serif;
 }
 
 textarea:focus,
-input:focus{
+input:focus,
+select:focus{
   border-color:#7c3aed;
 }
 
@@ -218,6 +224,7 @@ input:focus{
   padding:11px;
   border:1px solid #d1d5db;
   border-radius:9px;
+  background:white;
 }
 
 .generate{
@@ -257,6 +264,7 @@ input:focus{
   padding:12px;
   border-radius:10px;
   margin-top:15px;
+  margin-bottom:20px;
   font-weight:700;
 }
 
@@ -297,6 +305,7 @@ input:focus{
   border:1px solid #d1d5db;
   border-radius:10px;
   margin-bottom:12px;
+  outline:none;
 }
 
 .login-card button{
@@ -309,36 +318,6 @@ input:focus{
   color:#111827;
 }
 
-.plan-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
-  margin-top:18px;
-}
-
-.plan{
-  border:1px solid #e5e7eb;
-  border-radius:12px;
-  padding:18px;
-  text-align:center;
-}
-
-.plan h3{
-  margin-bottom:8px;
-}
-
-.plan strong{
-  display:block;
-  font-size:22px;
-  margin-bottom:12px;
-}
-
-.subscribe{
-  background:#111827;
-  color:white;
-  width:100%;
-}
-
 .user-info{
   font-size:13px;
   opacity:.9;
@@ -348,13 +327,28 @@ input:focus{
   display:none!important;
 }
 
+.loading{
+  display:inline-block;
+  width:15px;
+  height:15px;
+  border:2px solid rgba(255,255,255,.4);
+  border-top-color:white;
+  border-radius:50%;
+  animation:spin .7s linear infinite;
+  vertical-align:middle;
+  margin-right:7px;
+}
+
+@keyframes spin{
+  to{
+    transform:rotate(360deg);
+  }
+}
+
 @media(max-width:650px){
+
   .hero h1{
     font-size:27px;
-  }
-
-  .plan-grid{
-    grid-template-columns:1fr;
   }
 
   header{
@@ -364,6 +358,21 @@ input:focus{
   .user-info{
     display:none;
   }
+
+  .record-area button,
+  .file-label{
+    width:100%;
+  }
+
+  .controls{
+    align-items:stretch;
+  }
+
+  .speed,
+  .generate{
+    width:100%;
+  }
+
 }
 </style>
 </head>
@@ -382,11 +391,17 @@ input:focus{
       Guest
     </span>
 
-    <button class="login-btn" id="loginBtn" onclick="openLogin()">
+    <button
+      class="login-btn"
+      id="loginBtn"
+      onclick="openLogin()">
       Login
     </button>
 
-    <button class="logout-btn hidden" id="logoutBtn" onclick="logout()">
+    <button
+      class="logout-btn hidden"
+      id="logoutBtn"
+      onclick="logout()">
       Logout
     </button>
 
@@ -433,15 +448,21 @@ input:focus{
         class="primary"
         id="recordBtn"
         onclick="toggleRecording()">
+
         🎙️ Start Recording
+
       </button>
 
+
       <label class="file-label">
+
         📁 Upload Voice
+
         <input
           type="file"
           id="voiceFile"
           accept="audio/*">
+
       </label>
 
     </div>
@@ -458,6 +479,7 @@ input:focus{
       id="voiceName"
       class="voice-name"
       type="text"
+      maxlength="100"
       placeholder="Give your voice a name, e.g. My Voice">
 
 
@@ -480,8 +502,7 @@ input:focus{
   </div>
 
 
-
-  <!-- TEXT GENERATION -->
+  <!-- GENERATION -->
 
   <div class="card">
 
@@ -508,11 +529,25 @@ input:focus{
         id="speed"
         class="speed">
 
-        <option value="0.75">0.75x</option>
-        <option value="1" selected>1x</option>
-        <option value="1.25">1.25x</option>
-        <option value="1.5">1.5x</option>
-        <option value="2">2x</option>
+        <option value="0.75">
+          0.75x
+        </option>
+
+        <option value="1" selected>
+          1x
+        </option>
+
+        <option value="1.25">
+          1.25x
+        </option>
+
+        <option value="1.5">
+          1.5x
+        </option>
+
+        <option value="2">
+          2x
+        </option>
 
       </select>
 
@@ -559,83 +594,7 @@ input:focus{
 
   </div>
 
-
-
-  <!-- SUBSCRIPTION -->
-
-  <div class="card">
-
-    <h2>💳 Upgrade</h2>
-
-    <p>
-      Need more generations? Choose a subscription plan.
-    </p>
-
-
-    <div class="plan-grid">
-
-      <div class="plan">
-
-        <h3>Basic</h3>
-
-        <strong>₦2,000</strong>
-
-        <p>Weekly</p>
-
-        <button
-          class="subscribe"
-          onclick="payPlan('basic')">
-
-          Subscribe
-
-        </button>
-
-      </div>
-
-
-      <div class="plan">
-
-        <h3>Standard</h3>
-
-        <strong>₦3,000</strong>
-
-        <p>Weekly</p>
-
-        <button
-          class="subscribe"
-          onclick="payPlan('standard')">
-
-          Subscribe
-
-        </button>
-
-      </div>
-
-
-      <div class="plan">
-
-        <h3>Pro</h3>
-
-        <strong>₦5,000</strong>
-
-        <p>Weekly</p>
-
-        <button
-          class="subscribe"
-          onclick="payPlan('pro')">
-
-          Subscribe
-
-        </button>
-
-      </div>
-
-    </div>
-
-  </div>
-
 </div>
-
 
 
 <!-- LOGIN MODAL -->
@@ -646,18 +605,22 @@ input:focus{
 
   <div class="login-card">
 
-    <h2>Login / Create Account</h2>
+    <h2>
+      Login / Create Account
+    </h2>
 
 
     <input
       type="email"
       id="email"
+      autocomplete="email"
       placeholder="Email address">
 
 
     <input
       type="password"
       id="password"
+      autocomplete="current-password"
       placeholder="Password">
 
 
@@ -698,38 +661,19 @@ input:focus{
 </div>
 
 
-
 <script>
 
 /* =====================================================
    CONFIGURATION
 ===================================================== */
 
-
-/*
-   THIS IS YOUR NEW VOICE CLONING BACKEND
-*/
 const VOICE_API =
   "https://ai-voice-cloned.onrender.com";
 
 
-/*
-   KEEP YOUR OLD ACCOUNT/PAYMENT BACKEND HERE.
-
-   If your old backend contains:
-   /subscription
-   /verify-payment
-
-   keep its URL here.
-*/
-const ACCOUNT_API =
-  "https://ai-voice-backend-pl9h.onrender.com";
-
-
-/* Supabase */
-
 const SUPABASE_URL =
   "https://ihoxjwqlvuskkqrfowbr.supabase.co";
+
 
 const SUPABASE_KEY =
   "sb_publishable_TAesDbD1gUQ5p9IoYhZWJw_tBHL5g4F";
@@ -742,12 +686,6 @@ const supabaseClient =
   );
 
 
-/* Paystack public key */
-
-const PAYSTACK_PUBLIC_KEY =
-  "pk_test_YOUR_PAYSTACK_PUBLIC_KEY";
-
-
 /* =====================================================
    GLOBAL VARIABLES
 ===================================================== */
@@ -758,26 +696,25 @@ let mediaRecorder = null;
 
 let recordedChunks = [];
 
+let recordingStream = null;
+
 let isRecording = false;
 
 
-/*
-   Save cloned voice ID in browser.
-*/
-
 let voiceId =
-  localStorage.getItem("fish_voice_id") || null;
+  localStorage.getItem(
+    "fish_voice_id"
+  ) || null;
 
-
-/*
-   Free generations
-*/
 
 const FREE_GENERATIONS = 5;
 
+
 let generationsUsed =
   Number(
-    localStorage.getItem("voice_generations_used") || 0
+    localStorage.getItem(
+      "voice_generations_used"
+    ) || 0
   );
 
 
@@ -786,48 +723,73 @@ let generationsUsed =
 ===================================================== */
 
 const voiceFile =
-  document.getElementById("voiceFile");
+  document.getElementById(
+    "voiceFile"
+  );
 
 const voicePreview =
-  document.getElementById("voicePreview");
+  document.getElementById(
+    "voicePreview"
+  );
 
 const cloneBtn =
-  document.getElementById("cloneBtn");
+  document.getElementById(
+    "cloneBtn"
+  );
 
 const cloneStatus =
-  document.getElementById("cloneStatus");
+  document.getElementById(
+    "cloneStatus"
+  );
 
 const recordBtn =
-  document.getElementById("recordBtn");
+  document.getElementById(
+    "recordBtn"
+  );
 
 const script =
-  document.getElementById("script");
+  document.getElementById(
+    "script"
+  );
 
 const speed =
-  document.getElementById("speed");
+  document.getElementById(
+    "speed"
+  );
 
 const generateBtn =
-  document.getElementById("generateBtn");
+  document.getElementById(
+    "generateBtn"
+  );
 
 const generatedAudio =
-  document.getElementById("generatedAudio");
+  document.getElementById(
+    "generatedAudio"
+  );
 
 const audioResult =
-  document.getElementById("audioResult");
+  document.getElementById(
+    "audioResult"
+  );
 
 const downloadBtn =
-  document.getElementById("downloadBtn");
+  document.getElementById(
+    "downloadBtn"
+  );
 
 const generationStatus =
-  document.getElementById("generationStatus");
+  document.getElementById(
+    "generationStatus"
+  );
 
 const counter =
-  document.getElementById("counter");
-
+  document.getElementById(
+    "counter"
+  );
 
 
 /* =====================================================
-   FREE GENERATION COUNTER
+   COUNTER
 ===================================================== */
 
 function updateCounter(){
@@ -835,8 +797,10 @@ function updateCounter(){
   const remaining =
     Math.max(
       0,
-      FREE_GENERATIONS - generationsUsed
+      FREE_GENERATIONS -
+      generationsUsed
     );
+
 
   counter.textContent =
     `Free generations remaining: ${remaining}`;
@@ -845,7 +809,6 @@ function updateCounter(){
 
 
 updateCounter();
-
 
 
 /* =====================================================
@@ -859,33 +822,87 @@ voiceFile.addEventListener(
     const file =
       this.files[0];
 
+
     if(!file){
 
-      selectedVoiceFile = null;
+      selectedVoiceFile =
+        null;
 
-      cloneBtn.disabled = true;
+      cloneBtn.disabled =
+        true;
 
       return;
+
     }
 
 
-    selectedVoiceFile = file;
+    if(
+      !file.type.startsWith(
+        "audio/"
+      )
+    ){
+
+      showCloneStatus(
+        "error",
+        "Please select an audio file."
+      );
+
+      this.value = "";
+
+      selectedVoiceFile =
+        null;
+
+      cloneBtn.disabled =
+        true;
+
+      return;
+
+    }
 
 
-    /*
-       Preview uploaded audio
-    */
+    if(
+      file.size >
+      20 * 1024 * 1024
+    ){
+
+      showCloneStatus(
+        "error",
+        "Audio file is too large. Maximum size is 20MB."
+      );
+
+      this.value = "";
+
+      selectedVoiceFile =
+        null;
+
+      cloneBtn.disabled =
+        true;
+
+      return;
+
+    }
+
+
+    selectedVoiceFile =
+      file;
+
 
     const url =
-      URL.createObjectURL(file);
+      URL.createObjectURL(
+        file
+      );
 
-    voicePreview.src = url;
+
+    voicePreview.src =
+      url;
+
 
     voicePreview.style.display =
       "block";
 
 
-    cloneBtn.disabled = false;
+    cloneBtn.disabled =
+      false;
 
 
     showCloneStatus(
@@ -897,9 +914,8 @@ voiceFile.addEventListener(
 );
 
 
-
 /* =====================================================
-   RECORD VOICE
+   RECORDING
 ===================================================== */
 
 async function toggleRecording(){
@@ -917,17 +933,28 @@ async function toggleRecording(){
 }
 
 
-
-/* START */
-
 async function startRecording(){
 
   try{
 
-    const stream =
-      await navigator.mediaDevices.getUserMedia({
-        audio:true
-      });
+    if(
+      !navigator.mediaDevices ||
+      !navigator.mediaDevices.getUserMedia
+    ){
+
+      throw new Error(
+        "Your browser does not support microphone recording."
+      );
+
+    }
+
+
+    recordingStream =
+      await navigator
+        .mediaDevices
+        .getUserMedia({
+          audio:true
+        });
 
 
     recordedChunks = [];
@@ -936,32 +963,51 @@ async function startRecording(){
     let mimeType = "";
 
 
-    /*
-       iPhone/Safari usually supports audio/mp4.
-       Chrome usually supports audio/webm.
-    */
-
     if(
-      MediaRecorder.isTypeSupported(
-        "audio/mp4"
-      )
+      typeof MediaRecorder !==
+      "undefined"
     ){
 
-      mimeType =
-        "audio/mp4";
+      const types = [
 
-    }else if(
-      MediaRecorder.isTypeSupported(
-        "audio/webm"
-      )
-    ){
+        "audio/mp4",
 
-      mimeType =
-        "audio/webm";
+        "audio/webm;codecs=opus",
 
-    }else{
+        "audio/webm",
 
-      mimeType = "";
+        "audio/ogg;codecs=opus"
+
+      ];
+
+
+      for(
+        const type of types
+      ){
+
+        if(
+          MediaRecorder.isTypeSupported(
+            type
+          )
+        ){
+
+          mimeType =
+            type;
+
+          break;
+
+        }
+
+      }
+
+    }
+
+
+    if(!window.MediaRecorder){
+
+      throw new Error(
+        "This browser does not support audio recording."
+      );
 
     }
 
@@ -969,16 +1015,23 @@ async function startRecording(){
     mediaRecorder =
       mimeType
       ? new MediaRecorder(
-          stream,
-          {mimeType}
+          recordingStream,
+          {
+            mimeType:mimeType
+          }
         )
-      : new MediaRecorder(stream);
+      : new MediaRecorder(
+          recordingStream
+        );
 
 
     mediaRecorder.ondataavailable =
       function(event){
 
-        if(event.data.size > 0){
+        if(
+          event.data &&
+          event.data.size > 0
+        ){
 
           recordedChunks.push(
             event.data
@@ -989,17 +1042,35 @@ async function startRecording(){
       };
 
 
+    mediaRecorder.onerror =
+      function(event){
+
+        console.error(
+          "Recorder error:",
+          event
+        );
+
+      };
+
+
     mediaRecorder.onstop =
       function(){
 
-        const type =
-          mimeType || "audio/webm";
+        const finalType =
+          mimeType ||
+          (
+            recordedChunks[0]
+            ?.type ||
+            "audio/webm"
+          );
 
 
         const blob =
           new Blob(
             recordedChunks,
-            {type}
+            {
+              type:finalType
+            }
           );
 
 
@@ -1007,9 +1078,23 @@ async function startRecording(){
           "webm";
 
 
-        if(type.includes("mp4")){
+        if(
+          finalType.includes(
+            "mp4"
+          )
+        ){
 
-          extension = "m4a";
+          extension =
+            "m4a";
+
+        }else if(
+          finalType.includes(
+            "ogg"
+          )
+        ){
+
+          extension =
+            "ogg";
 
         }
 
@@ -1019,17 +1104,20 @@ async function startRecording(){
             [blob],
             `voice-recording.${extension}`,
             {
-              type
+              type:finalType
             }
           );
 
 
         const url =
-          URL.createObjectURL(blob);
+          URL.createObjectURL(
+            blob
+          );
 
 
         voicePreview.src =
           url;
+
 
         voicePreview.style.display =
           "block";
@@ -1045,23 +1133,31 @@ async function startRecording(){
         );
 
 
-        /*
-           Stop microphone
-        */
+        if(recordingStream){
 
-        stream
-          .getTracks()
-          .forEach(
-            track => track.stop()
-          );
+          recordingStream
+            .getTracks()
+            .forEach(
+              track =>
+                track.stop()
+            );
+
+        }
+
+
+        recordingStream =
+          null;
 
       };
 
 
-    mediaRecorder.start();
+    mediaRecorder.start(
+      1000
+    );
 
 
-    isRecording = true;
+    isRecording =
+      true;
 
 
     recordBtn.textContent =
@@ -1075,18 +1171,51 @@ async function startRecording(){
 
     showCloneStatus(
       "info",
-      "Recording... Speak clearly for at least 10 seconds."
+      "Recording... Speak clearly. Try to record at least 10 seconds."
     );
 
 
   }catch(error){
 
-    console.error(error);
+    console.error(
+      "Recording error:",
+      error
+    );
+
+
+    if(recordingStream){
+
+      recordingStream
+        .getTracks()
+        .forEach(
+          track =>
+            track.stop()
+        );
+
+    }
+
+
+    recordingStream =
+      null;
+
+
+    isRecording =
+      false;
+
+
+    recordBtn.textContent =
+      "🎙️ Start Recording";
+
+
+    recordBtn.classList.remove(
+      "danger"
+    );
 
 
     showCloneStatus(
       "error",
-      "Microphone permission was denied or recording is not supported by this browser."
+      error.message ||
+      "Microphone permission was denied or recording is not supported."
     );
 
   }
@@ -1094,14 +1223,12 @@ async function startRecording(){
 }
 
 
-
-/* STOP */
-
 function stopRecording(){
 
   if(
     mediaRecorder &&
-    mediaRecorder.state !== "inactive"
+    mediaRecorder.state !==
+      "inactive"
   ){
 
     mediaRecorder.stop();
@@ -1109,7 +1236,8 @@ function stopRecording(){
   }
 
 
-  isRecording = false;
+  isRecording =
+    false;
 
 
   recordBtn.textContent =
@@ -1121,7 +1249,6 @@ function stopRecording(){
   );
 
 }
-
 
 
 /* =====================================================
@@ -1142,12 +1269,17 @@ async function createVoiceClone(){
   }
 
 
-  cloneBtn.disabled = true;
+  cloneBtn.disabled =
+    true;
+
+
+  cloneBtn.innerHTML =
+    '<span class="loading"></span> Creating Clone...';
 
 
   showCloneStatus(
     "info",
-    "Creating your voice clone... Please wait."
+    "Uploading your voice and creating the clone. Please wait..."
   );
 
 
@@ -1163,16 +1295,19 @@ async function createVoiceClone(){
     );
 
 
-    const nameInput =
+    const name =
       document
-        .getElementById("voiceName")
+        .getElementById(
+          "voiceName"
+        )
         .value
         .trim();
 
 
     formData.append(
       "name",
-      nameInput || "My Voice"
+      name ||
+      "My Voice"
     );
 
 
@@ -1217,7 +1352,7 @@ async function createVoiceClone(){
     if(!response.ok){
 
       console.error(
-        "Clone error:",
+        "CLONE SERVER ERROR:",
         data
       );
 
@@ -1225,7 +1360,7 @@ async function createVoiceClone(){
       throw new Error(
         data.message ||
         data.detail ||
-        "Voice cloning failed."
+        `Voice cloning failed (${response.status})`
       );
 
     }
@@ -1233,16 +1368,18 @@ async function createVoiceClone(){
 
     if(!data.voiceId){
 
+      console.error(
+        "No voiceId returned:",
+        data
+      );
+
+
       throw new Error(
-        "The server did not return a voice ID."
+        "The server created a response but did not return a voice ID."
       );
 
     }
 
-
-    /*
-       SAVE VOICE ID
-    */
 
     voiceId =
       data.voiceId;
@@ -1256,17 +1393,20 @@ async function createVoiceClone(){
 
     showCloneStatus(
       "success",
-      "✅ Voice clone created successfully! You can now type text and generate speech."
+      "✅ Voice clone created successfully! You can now generate speech."
     );
 
 
-    generateBtn.disabled =
-      false;
+    cloneBtn.innerHTML =
+      "🧬 Create Voice Clone";
 
 
   }catch(error){
 
-    console.error(error);
+    console.error(
+      "Clone error:",
+      error
+    );
 
 
     showCloneStatus(
@@ -1278,10 +1418,13 @@ async function createVoiceClone(){
     cloneBtn.disabled =
       false;
 
+
+    cloneBtn.innerHTML =
+      "🧬 Create Voice Clone";
+
   }
 
 }
-
 
 
 /* =====================================================
@@ -1289,10 +1432,6 @@ async function createVoiceClone(){
 ===================================================== */
 
 async function generateSpeech(){
-
-  /*
-     Make sure clone exists
-  */
 
   if(!voiceId){
 
@@ -1305,10 +1444,6 @@ async function generateSpeech(){
 
   }
 
-
-  /*
-     Check text
-  */
 
   const text =
     script.value.trim();
@@ -1326,20 +1461,15 @@ async function generateSpeech(){
   }
 
 
-  /*
-     Free usage
-  */
-
   if(
-    generationsUsed >= FREE_GENERATIONS
+    generationsUsed >=
+    FREE_GENERATIONS
   ){
 
     showGenerationStatus(
       "error",
-      "You have used your 5 free generations. Please subscribe to continue."
+      "You have used your 5 free generations."
     );
-
-    openSubscriptionMessage();
 
     return;
 
@@ -1348,6 +1478,10 @@ async function generateSpeech(){
 
   generateBtn.disabled =
     true;
+
+
+  generateBtn.innerHTML =
+    '<span class="loading"></span> Generating...';
 
 
   showGenerationStatus(
@@ -1388,33 +1522,99 @@ async function generateSpeech(){
     if(!response.ok){
 
       let message =
-        "Speech generation failed.";
+        `Speech generation failed (${response.status}).`;
+
+
+      const contentType =
+        response.headers.get(
+          "content-type"
+        ) || "";
 
 
       try{
 
-        const error =
-          await response.json();
+        if(
+          contentType.includes(
+            "application/json"
+          )
+        ){
+
+          const error =
+            await response.json();
 
 
-        message =
-          error.message ||
-          message;
+          message =
+            error.message ||
+            error.detail ||
+            message;
 
-      }catch(e){}
+        }else{
+
+          const errorText =
+            await response.text();
 
 
-      throw new Error(message);
+          if(errorText){
+
+            message =
+              errorText;
+
+          }
+
+        }
+
+      }catch(error){
+
+        console.error(
+          "Could not read server error:",
+          error
+        );
+
+      }
+
+
+      throw new Error(
+        message
+      );
 
     }
 
 
-    /*
-       Receive MP3
-    */
+    const contentType =
+      response.headers.get(
+        "content-type"
+      ) || "";
+
+
+    if(
+      !contentType.includes(
+        "audio"
+      )
+    ){
+
+      const serverText =
+        await response.text();
+
+
+      throw new Error(
+        serverText ||
+        "The server did not return an audio file."
+      );
+
+    }
+
 
     const blob =
       await response.blob();
+
+
+    if(blob.size === 0){
+
+      throw new Error(
+        "The server returned an empty audio file."
+      );
+
+    }
 
 
     const audioURL =
@@ -1439,10 +1639,6 @@ async function generateSpeech(){
       "voice-clone.mp3";
 
 
-    /*
-       Count generation
-    */
-
     generationsUsed++;
 
 
@@ -1457,24 +1653,19 @@ async function generateSpeech(){
 
     showGenerationStatus(
       "success",
-      "✅ Your voice has been generated successfully."
+      "✅ Your cloned voice has been generated successfully."
     );
 
-
-    /*
-       Automatically play
-    */
 
     try{
 
       await generatedAudio.play();
 
-    }catch(e){
+    }catch(error){
 
-      /*
-         Browser may block autoplay.
-         User can press play manually.
-      */
+      console.log(
+        "Autoplay blocked. Press play manually."
+      );
 
     }
 
@@ -1482,7 +1673,7 @@ async function generateSpeech(){
   }catch(error){
 
     console.error(
-      "Generate error:",
+      "GENERATE ERROR:",
       error
     );
 
@@ -1498,8 +1689,11 @@ async function generateSpeech(){
   generateBtn.disabled =
     false;
 
-}
 
+  generateBtn.innerHTML =
+    "🔊 Generate Voice";
+
+}
 
 
 /* =====================================================
@@ -1514,8 +1708,10 @@ function showCloneStatus(
   cloneStatus.className =
     `clone-status status ${type}`;
 
+
   cloneStatus.textContent =
     message;
+
 
   cloneStatus.style.display =
     "block";
@@ -1531,14 +1727,15 @@ function showGenerationStatus(
   generationStatus.className =
     `status ${type}`;
 
+
   generationStatus.textContent =
     message;
+
 
   generationStatus.style.display =
     "block";
 
 }
-
 
 
 /* =====================================================
@@ -1548,7 +1745,9 @@ function showGenerationStatus(
 function openLogin(){
 
   document
-    .getElementById("loginBox")
+    .getElementById(
+      "loginBox"
+    )
     .style.display =
       "flex";
 
@@ -1558,7 +1757,9 @@ function openLogin(){
 function closeLogin(){
 
   document
-    .getElementById("loginBox")
+    .getElementById(
+      "loginBox"
+    )
     .style.display =
       "none";
 
@@ -1569,14 +1770,18 @@ async function login(){
 
   const email =
     document
-      .getElementById("email")
+      .getElementById(
+        "email"
+      )
       .value
       .trim();
 
 
   const password =
     document
-      .getElementById("password")
+      .getElementById(
+        "password"
+      )
       .value;
 
 
@@ -1625,18 +1830,24 @@ async function login(){
     );
 
 
+    updateUserUI(
+      data.user
+    );
+
+
     setTimeout(
       closeLogin,
       700
     );
 
 
-    updateUserUI(
-      data.user
+  }catch(error){
+
+    console.error(
+      "Login error:",
+      error
     );
 
-
-  }catch(error){
 
     showLoginStatus(
       "error",
@@ -1648,7 +1859,6 @@ async function login(){
 }
 
 
-
 /* =====================================================
    SIGNUP
 ===================================================== */
@@ -1657,14 +1867,18 @@ async function signup(){
 
   const email =
     document
-      .getElementById("email")
+      .getElementById(
+        "email"
+      )
       .value
       .trim();
 
 
   const password =
     document
-      .getElementById("password")
+      .getElementById(
+        "password"
+      )
       .value;
 
 
@@ -1672,7 +1886,7 @@ async function signup(){
 
     showLoginStatus(
       "error",
-      "Enter email and password."
+      "Enter your email and password."
     );
 
     return;
@@ -1719,13 +1933,9 @@ async function signup(){
     }
 
 
-    showLoginStatus(
-      "success",
-      "Account created. Check your email if confirmation is enabled."
-    );
-
-
-    if(data.user){
+    if(
+      data.user
+    ){
 
       updateUserUI(
         data.user
@@ -1734,7 +1944,19 @@ async function signup(){
     }
 
 
+    showLoginStatus(
+      "success",
+      "Account created. Check your email if confirmation is enabled."
+    );
+
+
   }catch(error){
+
+    console.error(
+      "Signup error:",
+      error
+    );
+
 
     showLoginStatus(
       "error",
@@ -1744,7 +1966,6 @@ async function signup(){
   }
 
 }
-
 
 
 /* =====================================================
@@ -1765,14 +1986,15 @@ function showLoginStatus(
   box.className =
     `status ${type}`;
 
+
   box.textContent =
     message;
+
 
   box.style.display =
     "block";
 
 }
-
 
 
 /* =====================================================
@@ -1781,22 +2003,36 @@ function showLoginStatus(
 
 async function logout(){
 
-  await supabaseClient
-    .auth
-    .signOut();
+  try{
+
+    await supabaseClient
+      .auth
+      .signOut();
+
+  }catch(error){
+
+    console.error(
+      "Logout error:",
+      error
+    );
+
+  }
 
 
-  updateUserUI(null);
+  updateUserUI(
+    null
+  );
 
 }
-
 
 
 /* =====================================================
    USER UI
 ===================================================== */
 
-function updateUserUI(user){
+function updateUserUI(
+  user
+){
 
   const loginBtn =
     document.getElementById(
@@ -1829,7 +2065,8 @@ function updateUserUI(user){
 
 
     userInfo.textContent =
-      user.email;
+      user.email ||
+      "User";
 
   }else{
 
@@ -1851,30 +2088,45 @@ function updateUserUI(user){
 }
 
 
-
 /* =====================================================
    CHECK CURRENT USER
 ===================================================== */
 
 async function checkUser(){
 
-  const {
-    data
-  } =
-    await supabaseClient
-      .auth
-      .getUser();
+  try{
+
+    const {
+      data
+    } =
+      await supabaseClient
+        .auth
+        .getUser();
 
 
-  updateUserUI(
-    data.user || null
-  );
+    updateUserUI(
+      data.user ||
+      null
+    );
+
+  }catch(error){
+
+    console.error(
+      "User check error:",
+      error
+    );
+
+
+    updateUserUI(
+      null
+    );
+
+  }
 
 }
 
 
 checkUser();
-
 
 
 /* =====================================================
@@ -1890,228 +2142,16 @@ supabaseClient
     ){
 
       updateUserUI(
-        session?.user || null
+        session?.user ||
+        null
       );
 
     }
   );
 
 
-
 /* =====================================================
-   PAYSTACK
-===================================================== */
-
-const plans = {
-
-  basic:{
-    amount:200000,
-    name:"Basic",
-    planCode:"YOUR_BASIC_PLAN_CODE"
-  },
-
-  standard:{
-    amount:300000,
-    name:"Standard",
-    planCode:"YOUR_STANDARD_PLAN_CODE"
-  },
-
-  pro:{
-    amount:500000,
-    name:"Pro",
-    planCode:"YOUR_PRO_PLAN_CODE"
-  }
-
-};
-
-
-
-async function payPlan(
-  planName
-){
-
-  const {
-    data
-  } =
-    await supabaseClient
-      .auth
-      .getUser();
-
-
-  if(!data.user){
-
-    openLogin();
-
-    showLoginStatus(
-      "error",
-      "Please login before subscribing."
-    );
-
-    return;
-
-  }
-
-
-  const plan =
-    plans[planName];
-
-
-  if(!plan){
-
-    alert(
-      "Invalid subscription plan."
-    );
-
-    return;
-
-  }
-
-
-  /*
-     Paystack payment
-  */
-
-  const handler =
-    PaystackPop.setup({
-
-      key:
-        PAYSTACK_PUBLIC_KEY,
-
-      email:
-        data.user.email,
-
-      amount:
-        plan.amount,
-
-      currency:
-        "NGN",
-
-      plan:
-        plan.planCode,
-
-      callback:
-        function(response){
-
-          verifyPayment(
-            response.reference,
-            planName
-          );
-
-        },
-
-      onClose:
-        function(){
-
-          console.log(
-            "Payment window closed."
-          );
-
-        }
-
-    });
-
-
-  handler.openIframe();
-
-}
-
-
-
-/* =====================================================
-   VERIFY PAYMENT
-===================================================== */
-
-async function verifyPayment(
-  reference,
-  planName
-){
-
-  try{
-
-    const response =
-      await fetch(
-        `${ACCOUNT_API}/verify-payment`,
-        {
-          method:"POST",
-
-          headers:{
-            "Content-Type":
-              "application/json"
-          },
-
-          body:JSON.stringify({
-
-            reference,
-
-            plan:planName
-
-          })
-
-        }
-      );
-
-
-    const data =
-      await response.json();
-
-
-    if(!response.ok){
-
-      throw new Error(
-        data.message ||
-        "Payment verification failed."
-      );
-
-    }
-
-
-    alert(
-      "Payment successful! Your subscription has been activated."
-    );
-
-
-  }catch(error){
-
-    console.error(error);
-
-
-    alert(
-      "Payment was received but verification failed. Contact support with your payment reference."
-    );
-
-  }
-
-}
-
-
-
-/* =====================================================
-   SUBSCRIPTION MESSAGE
-===================================================== */
-
-function openSubscriptionMessage(){
-
-  alert(
-    "You have used your 5 free generations. Please choose a subscription plan below to continue."
-  );
-
-
-  window.scrollTo({
-
-    top:
-      document.body.scrollHeight,
-
-    behavior:
-      "smooth"
-
-  });
-
-}
-
-
-
-/* =====================================================
-   LOAD SAVED CLONE
+   LOAD SAVED VOICE
 ===================================================== */
 
 function loadSavedClone(){
@@ -2123,10 +2163,6 @@ function loadSavedClone(){
       "✅ Your previously created voice clone is ready to use."
     );
 
-
-    cloneBtn.disabled =
-      false;
-
   }
 
 }
@@ -2135,29 +2171,27 @@ function loadSavedClone(){
 loadSavedClone();
 
 
-
 /* =====================================================
-   CLEAR OLD CLONE
+   CLEANUP AUDIO
 ===================================================== */
 
-function clearSavedClone(){
+window.addEventListener(
+  "beforeunload",
+  function(){
 
-  localStorage.removeItem(
-    "fish_voice_id"
-  );
+    if(recordingStream){
 
+      recordingStream
+        .getTracks()
+        .forEach(
+          track =>
+            track.stop()
+        );
 
-  voiceId =
-    null;
+    }
 
-
-  showCloneStatus(
-    "info",
-    "Saved voice clone removed. Create a new clone."
-  );
-
-}
-
+  }
+);
 
 </script>
 
